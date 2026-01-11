@@ -1,0 +1,100 @@
+THE SPECTRUM GAMES DATABASE
+
+3D DEATHCHASE
+
+PUBLISHER
+Micromega
+
+AUTHOR(s)
+M.J. Estcourt
+
+YEAR
+1983
+
+DESCRIPTION
+This was basicaly a racing game/shoot em up. You are one of an
+elite group of mercenaries and you had to patrol various forests
+during the day and night. There are 2 enemt bikers you have to
+chase and kill for a bounty of $1000, there were also helecopters
+and tanks to shoot as well. It was set over 8 levels where each
+forest getting more and more dense. When you get past level 8
+it's back to the start again.
+
+KEYS
+1 - steer left
+0 - steer right
+8 - decelerate
+9 - accelerate
+Any key on bottom row - fire photon bolt
+
+Also you can use Kempston joystick
+
+INSTRUCTIONS
+You have to chase the enemy bikers until you are in range (the
+range indicator will then flash), then you can use your photon
+bolts to shoot them. While doing this you have to doge the
+oncoming trees. Helecopters and tanks appear on the horizon and
+these can also be shot for more money. You also get money if you
+survive at high speeds. As soon as you have done a day patrol
+(when you have killed the 2 bikers) you proceed to the night
+stage which is similar to the day except the trees are harder to
+spot. The intructions say that the greatest reward is left to
+those who penetrate 8 sectors but I can't tell you what this is
+as I never got that far!
+
+CHEATS
+Just enter this program, play deathchase past the header, typ RUN
+and press play. Gives you invincibility.
+
+5 REM DEATHCHASE
+6 REM TIM DEILY
+7 REM CRASH MAY 1987
+10 FOR G=32740 TO 32758: READ A : POKE G,A : NEXT G
+20 RANDOMIZE USR 32740
+30 DATA 62,255,55,17,72,63
+40 DATA 221,33,0,64,205,86
+50 DATA 5,62,0,50,95,103,201
+
+or you can try POKE 26463,0 for infinite lives.
+
+
+RE-RELEASES
+1986 - 299 Classics (where it was called just Deathchase)
+1989 - Zeppelin
+
+URL
+ftp.nvg.unit.no/pub/sinclair/snaps/games/arcade/deathchase.zip
+
+NOTABLE FEATURES
+The most notable feature is the fact that 3D Deatchase is only
+16k long.  It is a very simple game but is highly addictive,
+don't play this game as you will not want to play anything again
+for weeks! It is also very hard on the later levels, you spend
+most of your time avoiding the trees let alone try to shoot the
+bikers.  The games blurb boasted about the fact that it was 100%
+machine code, Kempston joystick compatable and had the greatest
+3d graphics ever!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
