@@ -1,0 +1,92 @@
+binary-debuggable-source
+0000 0000 f name_ldos5.asm
+0000 0000 s ; name_ldos5
+0000 0000 s ;   The TRS-80 says hello, asks the users name, and then prints it
+0000 0000 s ; Reference Document:
+0000 0000 s ;   LDOS Version 5.1: The TRS-80 Operating System Model I and III
+0000 0000 s ;
+0000 0000 s ; zmac name_ldos5.asm
+0000 0000 s ; trs80gp -ld zout/name_ldos5.cmd
+7000 7000 s   org $7000
+7000 7000 s 
+7000 7000 s @DSPLY		equ	$4467 ; pg 6-66
+7000 7000 s @KEYIN		equ	$0040 ; pg 6-65
+7000 7000 s @EXIT		equ	$402d ; pg 6-60
+7000 7000 s 
+7000 7000 s ENTER		equ	$0d ; @DSPLY with newline
+7000 7000 s ETX		equ	$03 ; @DSPLY with no newline
+7000 7000 s 
+7000 7000 d 48656c6c6f2c205452532d383020576f726c64210d
+7000 7000 u 15 02
+7000 7000 s hello_world	defb	'Hello, TRS-80 World!',ENTER
+7015 7015 d 48657921205768617420697320796f7572206e616d653f2003
+7015 7015 u 19 02
+7015 7015 s name_prompt	defb	'Hey! What is your name? ',ETX
+702e 702e d 48656c6c6f2c2003
+702e 702e u 08 02
+702e 702e s name_prefix	defb	'Hello, ',ETX
+7036 7036 d 476f6f646279652c2066726f6d20746865205452532d383020576f726c64210d
+7036 7036 u 20 02
+7036 7036 s goodbye		defb	'Goodbye, from the TRS-80 World!',ENTER
+7056 7056 s 
+7056 7056 s buffer	defs	32 ; a small IO buffer
+7076 7076 s 
+7076 7076 s main:
+7076 7076 d 210070
+7076 7076 u 03 01
+7076 7076 s   ld hl,hello_world
+7079 7079 d cd6744
+7079 7079 u 03 01
+7079 7079 s   call @DSPLY
+707c 707c d 211570
+707c 707c u 03 01
+707c 707c s   ld hl,name_prompt
+707f 707f d cd6744
+707f 707f u 03 01
+707f 707f s   call @DSPLY
+7082 7082 s 
+7082 7082 d 061e
+7082 7082 u 02 01
+7082 7082 s   ld b,30
+7084 7084 d 215670
+7084 7084 u 03 01
+7084 7084 s   ld hl,buffer
+7087 7087 d cd4000
+7087 7087 u 03 01
+7087 7087 s   call @KEYIN
+708a 708a s 
+708a 708a d 212e70
+708a 708a u 03 01
+708a 708a s   ld hl,name_prefix
+708d 708d d cd6744
+708d 708d u 03 01
+708d 708d s   call @DSPLY
+7090 7090 d 215670
+7090 7090 u 03 01
+7090 7090 s   ld hl,buffer
+7093 7093 d cd6744
+7093 7093 u 03 01
+7093 7093 s   call @DSPLY
+7096 7096 d 213670
+7096 7096 u 03 01
+7096 7096 s   ld hl,goodbye
+7099 7099 d cd6744
+7099 7099 u 03 01
+7099 7099 s   call @DSPLY
+709c 709c s 
+709c 709c d 18d8
+709c 709c u 02 01
+709c 709c s   jr main    ; loop back to repeat
+709e 709e s   end main
+7076 e
+0003 v ETX
+7056 a buffer
+7015 a name_prompt
+7036 a goodbye
+7076 a main
+402d v @EXIT
+7000 a hello_world
+702e a name_prefix
+000d v ENTER
+4467 v @DSPLY
+0040 v @KEYIN

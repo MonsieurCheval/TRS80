@@ -1,0 +1,86 @@
+   1:				; name_ldos5
+   2:				;   The TRS-80 says hello, asks the users name, and then prints it
+   3:				; Reference Document:
+   4:				;   LDOS Version 5.1: The TRS-80 Operating System Model I and III
+   5:				;
+   6:				; zmac add.asm
+   7:				; trs80gp -ld zout/add.cmd
+   8:     -	7000          	  org $7000
+   9:				
+  10:     -	4467          	@DSPLY		equ	$4467 ; pg 6-66
+  11:     -	0040          	@KEYIN		equ	$0040 ; pg 6-65
+  12:     -	402D          	@EXIT		equ	$402d ; pg 6-60
+  13:				
+  14:     -	000D          	ENTER		equ	$0d ; @DSPLY with newline
+  15:     -	0003          	ETX		equ	$03 ; @DSPLY with no newline
+  16:				
+  17:     -	7000  48656C6C	hello_world	defb	'Hello, TRS-80 World!',ENTER
+	              6F2C2054
+	              52532D38
+	              3020576F
+	              726C6421
+	              0D
+  18:     -	7015  48657921	name_prompt	defb	'Hey! What is your name? ',ETX
+	              20576861
+	              74206973
+	              20796F75
+	              72206E61
+	              6D653F20
+	              03
+  19:     -	702E  48656C6C	name_prefix	defb	'Hello, ',ETX
+	              6F2C2003
+  20:     -	7036  476F6F64	goodbye		defb	'Goodbye, from the TRS-80 World!',ENTER
+	              6279652C
+	              2066726F
+	              6D207468
+	              65205452
+	              532D3830
+	              20576F72
+	              6C64210D
+  21:				
+  22:     -	7056          	buffer	defs	32 ; a small IO buffer
+  23:				
+  24:     -	7076          	main:
+  25:    0+10	7076  210070  	  ld hl,hello_world
+  26:   10+17	7079  CD6744  	  call @DSPLY
+  27:   27+10	707C  211570  	  ld hl,name_prompt
+  28:   37+17	707F  CD6744  	  call @DSPLY
+  29:				
+  30:   54+7	7082  061E    	  ld b,30
+  31:   61+10	7084  215670  	  ld hl,buffer
+  32:   71+17	7087  CD4000  	  call @KEYIN
+  33:				
+  34:   88+10	708A  212E70  	  ld hl,name_prefix
+  35:   98+17	708D  CD6744  	  call @DSPLY
+  36:  115+10	7090  215670  	  ld hl,buffer
+  37:  125+17	7093  CD6744  	  call @DSPLY
+  38:  142+10	7096  213670  	  ld hl,goodbye
+  39:  152+17	7099  CD6744  	  call @DSPLY
+  40:				
+  41:  169+17	709C  CD2D40  	  call @EXIT
+  42:     -	7076          	  end main
+
+
+
+Statistics:
+
+     3	passes
+     0	jr promotions
+    11	symbols
+   127	bytes
+
+
+
+Symbol Table:
+
+@DSPLY         =4467      17511
+@EXIT          =402D      16429
+@KEYIN         =40        64
+ENTER          =0D        13
+ETX            =03        3
+buffer          7056      28758
+goodbye         7036      28726
+hello_world     7000      28672
+main            7076      28790
+name_prefix     702E      28718
+name_prompt     7015      28693
