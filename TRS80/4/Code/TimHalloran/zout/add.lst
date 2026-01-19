@@ -1,0 +1,48 @@
+   1:				; add.asm
+   2:				;   Adds a few numbers (no screen output)
+   3:				;
+   4:				; zmac add.asm
+   5:				; trs80gp -b main zout/add.bds
+   6:     -	5200          	  org $5200
+   7:				
+   8:     -	5200  02      	num	defb	2
+   9:     -	5201          	main:
+  10:				  ; 8-bit math
+  11:    0+7	5201  3E05    	  ld a,5     ; a = 5
+  12:    7+4	5203  3C      	  inc a      ; a = 6
+  13:   11+4	5204  3D      	  dec a      ; a = 5
+  14:				
+  15:   15+13	5205  3A0052  	  ld a,(num) ; load 2 from num into a
+  16:   28+4	5208  3C      	  inc a      ; a = 3
+  17:   32+4	5209  3D      	  dec a      ; a = 2
+  18:   36+7	520A  0E0A    	  ld c,10    ; c = 10
+  19:   43+4	520C  81      	  add c      ; a = 12, c = 10
+  20:   47+13	520D  320052  	  ld (num),a ; store 12 into num
+  21:				
+  22:				  ; We can do 16-bit math too
+  23:   60+10	5210  210002  	  ld hl,512  ; hl = 512
+  24:   70+10	5213  010002  	  ld bc,512  ; bc = 512
+  25:   80+11	5216  09      	  add hl,bc  ; hl = 1024
+  26:				
+  27:				  ; reset "num" to repeat
+  28:   91+7	5217  3E02    	  ld a,2     ; a = 2
+  29:   98+13	5219  320052  	  ld (num),a ; store 2 into num (via a)
+  30:				
+  31:  111+12	521C  18E3    	  jr main    ; jump back up to main and repeat until reboot
+  32:     -	5201          	  end main
+
+
+
+Statistics:
+
+     3	passes
+     0	jr promotions
+     2	symbols
+    30	bytes
+
+
+
+Symbol Table:
+
+main            5201      20993
+num             5200      20992

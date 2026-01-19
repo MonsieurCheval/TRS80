@@ -3,7 +3,7 @@
 ;
 ; zmac add.asm
 ; trs80gp -b main zout/add.bds
-org $5200
+  org $5200
 
 num	defb	2
 main:
