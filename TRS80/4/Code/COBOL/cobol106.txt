@@ -1,0 +1,14 @@
+Cobol v.01.06C for Model IV (DSK) - Ryan McFarland Corp (1983)
+
+Disk Label:
+-----------
+
+Model 4         DEVELOPMENT    VERSION 01.06.00   CAT. NO. 26-2190
+                SYSTEM
+---------------------------------------------------------------------------
+                                    COBOL
+---------------------------------------------------------------------------
+(c) 1983 RYAN McFARLAND CORP., ALL RIGHTS RESERVED.  LICENSED TO TANDY CORP.
+TRSDOS  VERS 6  (C) 1983 LOGICAL SYSTEMS, INC.
+ALL RIGHTS RESERVED.  LICENSED TO TANDY CORP.
+01.06.00
