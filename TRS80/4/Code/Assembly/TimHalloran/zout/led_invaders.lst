@@ -1,0 +1,129 @@
+   1:				; led_invaders.asm
+   2:				;   Animated space invaders-like aliens invade the TRS-80 screen. The aliens
+   3:				;   look strangly like LEDs due to my artwork.
+   4:				;
+   5:				; zmac led_invaders.asm
+   6:				; trs80gp.exe -m1 zout/led_invaders.cmd
+   7:     -	3C00          	screen	equ	$3c00
+   8:				
+   9:     -	5200          	  org $5200
+  10:				
+  11:				; Frame 1 of the ship animation: 3 characters X 2 lines.
+  12:						; 0 1     1 1       1 0
+  13:						; 0 1     0 0       1 0
+  14:						; 1 1     1 1       1 1
+  15:     -	5200  BAB3B5  	frame1	defb	10111010b,10110011b,10110101b
+  16:						; 0 1     0 0       1 0
+  17:						; 1 0     0 1       0 0
+  18:						; 0 1     0 0       1 0
+  19:     -	5203  A68891  		defb	10100110b,10001000b,10010001b
+  20:				
+  21:				; Frame 2 of the ship animation: 3 characters X 2 lines.
+  22:						; 0 1     1 1       1 0
+  23:						; 0 1     1 1       1 0
+  24:						; 1 1     1 1       1 1
+  25:     -	5206  BABFB5  	frame2	defb	10111010b,10111111b,10110101b
+  26:						; 0 1     0 0       1 0
+  27:						; 0 0     1 0       0 1
+  28:						; 0 1     0 0       1 0
+  29:     -	5209  A28499  		defb	10100010b,10000100b,10011001b
+  30:				
+  31:				; Clears the screen.
+  32:     -	520C          	clear_screen:
+  33:    0+10	520C  21003C  	  ld    hl,screen
+  34:   10+10	520F  11013C  	  ld    de,screen+1
+  35:   20+10	5212  01FF03  	  ld    bc,$400-1
+  36:   30+10	5215  3620    	  ld    (hl),' ' ; fill with spaces
+  37:   40+16+5	5217  EDB0    	  ldir
+  38:   56+10	5219  C9      	  ret
+  39:				
+  40:				; Draws a frame of 3 characters X 2 lines on the screen at the passed address.
+  41:				;   hl - screen address
+  42:				;   ix - frame address
+  43:     -	521A          	draw_frame:
+  44:				  ; Draw the top 3 characters on the screen.
+  45:   66+19	521A  DD7E00  	  ld a,(ix)
+  46:   85+7	521D  77      	  ld (hl),a
+  47:   92+6	521E  23      	  inc hl
+  48:   98+19	521F  DD7E01  	  ld a,(ix+1)
+  49:  117+7	5222  77      	  ld (hl),a
+  50:  124+6	5223  23      	  inc hl
+  51:  130+19	5224  DD7E02  	  ld a,(ix+2)
+  52:  149+7	5227  77      	  ld (hl),a
+  53:				  ; Drop to the next line.
+  54:  156+10	5228  013E00  	  ld bc,62
+  55:  166+11	522B  09      	  add hl,bc
+  56:				  ; Draw the bottom 3 characters on the screen.
+  57:  177+19	522C  DD7E03  	  ld a,(ix+3)
+  58:  196+7	522F  77      	  ld (hl),a
+  59:  203+6	5230  23      	  inc hl
+  60:  209+19	5231  DD7E04  	  ld a,(ix+4)
+  61:  228+7	5234  77      	  ld (hl),a
+  62:  235+6	5235  23      	  inc hl
+  63:  241+19	5236  DD7E05  	  ld a,(ix+5)
+  64:  260+7	5239  77      	  ld (hl),a
+  65:  267+10	523A  C9      	  ret
+  66:				
+  67:				; Draws a row of invaders on the screen using the passed animation frame.
+  68:				;   ix - frame address
+  69:     -	523B          	draw_screen:
+  70:  277+10	523B  214F3D  	  ld hl,screen+(64*5)+15
+  71:  287+17	523E  CD1A52  	  call draw_frame
+  72:  304+10	5241  21543D  	  ld hl,screen+(64*5)+20
+  73:  314+17	5244  CD1A52  	  call draw_frame
+  74:  331+10	5247  21593D  	  ld hl,screen+(64*5)+25
+  75:  341+17	524A  CD1A52  	  call draw_frame
+  76:  358+10	524D  215E3D  	  ld hl,screen+(64*5)+30
+  77:  368+17	5250  CD1A52  	  call draw_frame
+  78:  385+10	5253  21633D  	  ld hl,screen+(64*5)+35
+  79:  395+17	5256  CD1A52  	  call draw_frame
+  80:  412+10	5259  21683D  	  ld hl,screen+(64*5)+40
+  81:  422+17	525C  CD1A52  	  call draw_frame
+  82:  439+10	525F  216D3D  	  ld hl,screen+(64*5)+45
+  83:  449+17	5262  CD1A52  	  call draw_frame
+  84:  466+10	5265  C9      	  ret
+  85:				
+  86:				; Pauses for a short period so the animation is not a blur.
+  87:     -	5266          	wait:
+  88:  476+10	5266  01FFFF  	  ld bc,$ffff
+  89:  486+8+5	5269  10FE    	wait_loop: djnz wait_loop
+  90:  494+4	526B  0D      	  dec c
+  91:  498+7+5	526C  20FB    	  jr nz,wait_loop
+  92:  505+10	526E  C9      	  ret
+  93:				
+  94:				; Our main progam that loops doing the animation until reboot.
+  95:     -	526F          	main:
+  96:  515+17	526F  CD0C52  	  call clear_screen
+  97:     -	5272          	animation_loop:
+  98:  532+14	5272  DD210052	  ld ix,frame1
+  99:  546+17	5276  CD3B52  	  call draw_screen
+ 100:  563+17	5279  CD6652  	  call wait
+ 101:  580+14	527C  DD210652	  ld ix,frame2
+ 102:  594+17	5280  CD3B52  	  call draw_screen
+ 103:  611+17	5283  CD6652  	  call wait
+ 104:  628+12	5286  18EA    	  jr animation_loop
+ 105:     -	526F          	  end main
+
+
+
+Statistics:
+
+     3	passes
+     0	jr promotions
+    10	symbols
+   136	bytes
+
+
+
+Symbol Table:
+
+animation_loop  5272      21106
+clear_screen    520C      21004
+draw_frame      521A      21018
+draw_screen     523B      21051
+frame1          5200      20992
+frame2          5206      20998
+main            526F      21103
+screen         =3C00      15360
+wait            5266      21094
+wait_loop       5269      21097

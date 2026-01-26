@@ -1,0 +1,50 @@
+binary-debuggable-source
+0000 0000 f hello_ldos5.asm
+0000 0000 s ; hello_ldos5
+0000 0000 s ;   The TRS-80 says hello using the screen
+0000 0000 s ; Reference Document:
+0000 0000 s ;   LDOS Version 5.1: The TRS-80 Operating System Model I and III
+0000 0000 s ;
+0000 0000 s ; zmac hello_ldos5.asm
+0000 0000 s ; trs80gp -ld zout/hello_ldos5.cmd
+7000 7000 s   org $7000
+7000 7000 s 
+7000 7000 s @DSPLY	equ	$4467 ; pg 6-66
+7000 7000 s @EXIT	equ	$402d ; pg 6-60
+7000 7000 s 
+7000 7000 s ENTER	equ	$0d ; @DSPLY with newline
+7000 7000 s 
+7000 7000 d 48656c6c6f2c205452532d383020576f726c64210d
+7000 7000 u 15 02
+7000 7000 s text	defb	'Hello, TRS-80 World!',ENTER
+7015 7015 d 776861742063616e206920646f20666f7220796f75210d
+7015 7015 u 17 02
+7015 7015 s text2	defb	'what can i do for you!',ENTER
+702c 702c s 
+702c 702c s 
+702c 702c s main:
+702c 702c d 210070
+702c 702c u 03 01
+702c 702c s   ld hl,text
+702f 702f d cd6744
+702f 702f u 03 01
+702f 702f s   call @DSPLY
+7032 7032 s 
+7032 7032 d 211570
+7032 7032 u 03 01
+7032 7032 s   ld hl,text2
+7035 7035 d cd6744
+7035 7035 u 03 01
+7035 7035 s   call @DSPLY
+7038 7038 s 
+7038 7038 d cd2d40
+7038 7038 u 03 01
+7038 7038 s   call @EXIT
+703b 703b s   end main
+702c e
+7015 a text2
+702c a main
+402d v @EXIT
+000d v ENTER
+4467 v @DSPLY
+7000 a text

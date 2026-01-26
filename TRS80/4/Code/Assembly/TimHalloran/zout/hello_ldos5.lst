@@ -1,0 +1,57 @@
+   1:				; hello_ldos5
+   2:				;   The TRS-80 says hello using the screen
+   3:				; Reference Document:
+   4:				;   LDOS Version 5.1: The TRS-80 Operating System Model I and III
+   5:				;
+   6:				; zmac hello_ldos5.asm
+   7:				; trs80gp -ld zout/hello_ldos5.cmd
+   8:     -	7000          	  org $7000
+   9:				
+  10:     -	4467          	@DSPLY	equ	$4467 ; pg 6-66
+  11:     -	402D          	@EXIT	equ	$402d ; pg 6-60
+  12:				
+  13:     -	000D          	ENTER	equ	$0d ; @DSPLY with newline
+  14:				
+  15:     -	7000  48656C6C	text	defb	'Hello, TRS-80 World!',ENTER
+	              6F2C2054
+	              52532D38
+	              3020576F
+	              726C6421
+	              0D
+  16:     -	7015  77686174	text2	defb	'what can i do for you!',ENTER
+	              2063616E
+	              20692064
+	              6F20666F
+	              7220796F
+	              75210D
+  17:				
+  18:				
+  19:     -	702C          	main:
+  20:    0+10	702C  210070  	  ld hl,text
+  21:   10+17	702F  CD6744  	  call @DSPLY
+  22:				
+  23:   27+10	7032  211570  	  ld hl,text2
+  24:   37+17	7035  CD6744  	  call @DSPLY
+  25:				
+  26:   54+17	7038  CD2D40  	  call @EXIT
+  27:     -	702C          	  end main
+
+
+
+Statistics:
+
+     3	passes
+     0	jr promotions
+     6	symbols
+    59	bytes
+
+
+
+Symbol Table:
+
+@DSPLY         =4467      17511
+@EXIT          =402D      16429
+ENTER          =0D        13
+main            702C      28716
+text            7000      28672
+text2           7015      28693

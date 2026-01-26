@@ -13,9 +13,14 @@
 ENTER	equ	$0d ; @DSPLY with newline
 
 text	defb	'Hello, TRS-80 World!',ENTER
+text2	defb	'what can i do for you!',ENTER
+
 
 main:
   ld hl,text
+  call @DSPLY
+
+  ld hl,text2
   call @DSPLY
 
   call @EXIT

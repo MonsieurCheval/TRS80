@@ -1,0 +1,750 @@
+binary-debuggable-source
+0000 0000 f dist_to_hh.asm
+0000 0000 s ;  _____  _     _     _______                              
+0000 0000 s ; |  __ \(_)   | |   |__   __|                             
+0000 0000 s ; | |  | |_ ___| |_     | | ___                            
+0000 0000 s ; | |  | | / __| __|    | |/ _ \                           
+0000 0000 s ; | |__| | \__ \ |_     | | (_) |                          
+0000 0000 s ; |_____/|_|___/\__|_   |_|\___/  _      _       _     _   
+0000 0000 s ; | |  | |     | |/ _|      | |  | |    (_)     | |   | |  
+0000 0000 s ; | |__| | __ _| | |_ ______| |__| | ___ _  __ _| |__ | |_ 
+0000 0000 s ; |  __  |/ _` | |  _|______|  __  |/ _ \ |/ _` | '_ \| __|
+0000 0000 s ; | |  | | (_| | | |        | |  | |  __/ | (_| | | | | |_ 
+0000 0000 s ; |_|  |_|\__,_|_|_|        |_|  |_|\___|_|\__, |_| |_|\__|
+0000 0000 s ;                                           __/ |          
+0000 0000 s ;                                          |___/      
+0000 0000 s ; Author: Tim Halloran
+0000 0000 s ; From the tutorial at https://lodev.org/cgtutor/raycasting.html
+0000 0000 s 
+0000 0000 s ; Returns c if hl >= (addr). Complex because we are doing a 16-bit comparison.
+0000 0000 s check_hh	macro	addr,?chk_lsb,?next
+0000 0000 s 		ld de,(addr)	; Do the table lookup for this half-height.
+0000 0000 s 		ld a,h
+0000 0000 s 		cp d
+0000 0000 s 		jr c,?next	; h < d  : msb dist < msb table lookup
+0000 0000 s 		jr z,?chk_lsb	; h = d  : msb dist = msb table lookup
+0000 0000 s 		ret		; h > d	 : msb dist > msb table lookup
+0000 0000 s ?chk_lsb:	ld a,l
+0000 0000 s 		cp e
+0000 0000 s 		jr c,?next	; l < e  : lsb dist < lsb table lookup
+0000 0000 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0000 0000 s ?next:		inc c
+0000 0000 s 		endm
+0000 0000 s 
+0000 0000 s ; Returns the half-height of a wall given the passed distance to it.
+0000 0000 s ;
+0000 0000 s ; Uses: a,c,de,hl
+0000 0000 s ;
+0000 0000 s ; Enter: hl  distance to wall.
+0000 0000 s ; Exit:  c   half-height of wall: (1,17).
+0000 0000 d 0e01
+0000 0000 u 02 01
+0000 0000 s dist_to_hh:	ld c,1
+0002 0002 s 		check_hh hh_01
+0002 0002 d ed5b2501
+0002 0002 u 04 01
+0002 0002 s 		ld de,(hh_01)	; Do the table lookup for this half-height.
+0006 0006 d 7c
+0006 0006 u 01 01
+0006 0006 s 		ld a,h
+0007 0007 d ba
+0007 0007 u 01 01
+0007 0007 s 		cp d
+0008 0008 d 3808
+0008 0008 u 02 01
+0008 0008 s 		jr c,?c0000	; h < d  : msb dist < msb table lookup
+000a 000a d 2801
+000a 000a u 02 01
+000a 000a s 		jr z,?b0000	; h = d  : msb dist = msb table lookup
+000c 000c d c9
+000c 000c u 01 01
+000c 000c s 		ret		; h > d	 : msb dist > msb table lookup
+000d 000d d 7d
+000d 000d u 01 01
+000d 000d s ?b0000:	ld a,l
+000e 000e d bb
+000e 000e u 01 01
+000e 000e s 		cp e
+000f 000f d 3801
+000f 000f u 02 01
+000f 000f s 		jr c,?c0000	; l < e  : lsb dist < lsb table lookup
+0011 0011 d c9
+0011 0011 u 01 01
+0011 0011 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0012 0012 d 0c
+0012 0012 u 01 01
+0012 0012 s ?c0000:		inc c
+0013 0013 s 		endm
+0013 0013 s 		check_hh hh_02
+0013 0013 d ed5b2701
+0013 0013 u 04 01
+0013 0013 s 		ld de,(hh_02)	; Do the table lookup for this half-height.
+0017 0017 d 7c
+0017 0017 u 01 01
+0017 0017 s 		ld a,h
+0018 0018 d ba
+0018 0018 u 01 01
+0018 0018 s 		cp d
+0019 0019 d 3808
+0019 0019 u 02 01
+0019 0019 s 		jr c,?c0001	; h < d  : msb dist < msb table lookup
+001b 001b d 2801
+001b 001b u 02 01
+001b 001b s 		jr z,?b0001	; h = d  : msb dist = msb table lookup
+001d 001d d c9
+001d 001d u 01 01
+001d 001d s 		ret		; h > d	 : msb dist > msb table lookup
+001e 001e d 7d
+001e 001e u 01 01
+001e 001e s ?b0001:	ld a,l
+001f 001f d bb
+001f 001f u 01 01
+001f 001f s 		cp e
+0020 0020 d 3801
+0020 0020 u 02 01
+0020 0020 s 		jr c,?c0001	; l < e  : lsb dist < lsb table lookup
+0022 0022 d c9
+0022 0022 u 01 01
+0022 0022 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0023 0023 d 0c
+0023 0023 u 01 01
+0023 0023 s ?c0001:		inc c
+0024 0024 s 		endm
+0024 0024 s 		check_hh hh_03
+0024 0024 d ed5b2901
+0024 0024 u 04 01
+0024 0024 s 		ld de,(hh_03)	; Do the table lookup for this half-height.
+0028 0028 d 7c
+0028 0028 u 01 01
+0028 0028 s 		ld a,h
+0029 0029 d ba
+0029 0029 u 01 01
+0029 0029 s 		cp d
+002a 002a d 3808
+002a 002a u 02 01
+002a 002a s 		jr c,?c0002	; h < d  : msb dist < msb table lookup
+002c 002c d 2801
+002c 002c u 02 01
+002c 002c s 		jr z,?b0002	; h = d  : msb dist = msb table lookup
+002e 002e d c9
+002e 002e u 01 01
+002e 002e s 		ret		; h > d	 : msb dist > msb table lookup
+002f 002f d 7d
+002f 002f u 01 01
+002f 002f s ?b0002:	ld a,l
+0030 0030 d bb
+0030 0030 u 01 01
+0030 0030 s 		cp e
+0031 0031 d 3801
+0031 0031 u 02 01
+0031 0031 s 		jr c,?c0002	; l < e  : lsb dist < lsb table lookup
+0033 0033 d c9
+0033 0033 u 01 01
+0033 0033 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0034 0034 d 0c
+0034 0034 u 01 01
+0034 0034 s ?c0002:		inc c
+0035 0035 s 		endm
+0035 0035 s 		check_hh hh_04
+0035 0035 d ed5b2b01
+0035 0035 u 04 01
+0035 0035 s 		ld de,(hh_04)	; Do the table lookup for this half-height.
+0039 0039 d 7c
+0039 0039 u 01 01
+0039 0039 s 		ld a,h
+003a 003a d ba
+003a 003a u 01 01
+003a 003a s 		cp d
+003b 003b d 3808
+003b 003b u 02 01
+003b 003b s 		jr c,?c0003	; h < d  : msb dist < msb table lookup
+003d 003d d 2801
+003d 003d u 02 01
+003d 003d s 		jr z,?b0003	; h = d  : msb dist = msb table lookup
+003f 003f d c9
+003f 003f u 01 01
+003f 003f s 		ret		; h > d	 : msb dist > msb table lookup
+0040 0040 d 7d
+0040 0040 u 01 01
+0040 0040 s ?b0003:	ld a,l
+0041 0041 d bb
+0041 0041 u 01 01
+0041 0041 s 		cp e
+0042 0042 d 3801
+0042 0042 u 02 01
+0042 0042 s 		jr c,?c0003	; l < e  : lsb dist < lsb table lookup
+0044 0044 d c9
+0044 0044 u 01 01
+0044 0044 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0045 0045 d 0c
+0045 0045 u 01 01
+0045 0045 s ?c0003:		inc c
+0046 0046 s 		endm
+0046 0046 s 		check_hh hh_05
+0046 0046 d ed5b2d01
+0046 0046 u 04 01
+0046 0046 s 		ld de,(hh_05)	; Do the table lookup for this half-height.
+004a 004a d 7c
+004a 004a u 01 01
+004a 004a s 		ld a,h
+004b 004b d ba
+004b 004b u 01 01
+004b 004b s 		cp d
+004c 004c d 3808
+004c 004c u 02 01
+004c 004c s 		jr c,?c0004	; h < d  : msb dist < msb table lookup
+004e 004e d 2801
+004e 004e u 02 01
+004e 004e s 		jr z,?b0004	; h = d  : msb dist = msb table lookup
+0050 0050 d c9
+0050 0050 u 01 01
+0050 0050 s 		ret		; h > d	 : msb dist > msb table lookup
+0051 0051 d 7d
+0051 0051 u 01 01
+0051 0051 s ?b0004:	ld a,l
+0052 0052 d bb
+0052 0052 u 01 01
+0052 0052 s 		cp e
+0053 0053 d 3801
+0053 0053 u 02 01
+0053 0053 s 		jr c,?c0004	; l < e  : lsb dist < lsb table lookup
+0055 0055 d c9
+0055 0055 u 01 01
+0055 0055 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0056 0056 d 0c
+0056 0056 u 01 01
+0056 0056 s ?c0004:		inc c
+0057 0057 s 		endm
+0057 0057 s 		check_hh hh_06
+0057 0057 d ed5b2f01
+0057 0057 u 04 01
+0057 0057 s 		ld de,(hh_06)	; Do the table lookup for this half-height.
+005b 005b d 7c
+005b 005b u 01 01
+005b 005b s 		ld a,h
+005c 005c d ba
+005c 005c u 01 01
+005c 005c s 		cp d
+005d 005d d 3808
+005d 005d u 02 01
+005d 005d s 		jr c,?c0005	; h < d  : msb dist < msb table lookup
+005f 005f d 2801
+005f 005f u 02 01
+005f 005f s 		jr z,?b0005	; h = d  : msb dist = msb table lookup
+0061 0061 d c9
+0061 0061 u 01 01
+0061 0061 s 		ret		; h > d	 : msb dist > msb table lookup
+0062 0062 d 7d
+0062 0062 u 01 01
+0062 0062 s ?b0005:	ld a,l
+0063 0063 d bb
+0063 0063 u 01 01
+0063 0063 s 		cp e
+0064 0064 d 3801
+0064 0064 u 02 01
+0064 0064 s 		jr c,?c0005	; l < e  : lsb dist < lsb table lookup
+0066 0066 d c9
+0066 0066 u 01 01
+0066 0066 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0067 0067 d 0c
+0067 0067 u 01 01
+0067 0067 s ?c0005:		inc c
+0068 0068 s 		endm
+0068 0068 s 		check_hh hh_07
+0068 0068 d ed5b3101
+0068 0068 u 04 01
+0068 0068 s 		ld de,(hh_07)	; Do the table lookup for this half-height.
+006c 006c d 7c
+006c 006c u 01 01
+006c 006c s 		ld a,h
+006d 006d d ba
+006d 006d u 01 01
+006d 006d s 		cp d
+006e 006e d 3808
+006e 006e u 02 01
+006e 006e s 		jr c,?c0006	; h < d  : msb dist < msb table lookup
+0070 0070 d 2801
+0070 0070 u 02 01
+0070 0070 s 		jr z,?b0006	; h = d  : msb dist = msb table lookup
+0072 0072 d c9
+0072 0072 u 01 01
+0072 0072 s 		ret		; h > d	 : msb dist > msb table lookup
+0073 0073 d 7d
+0073 0073 u 01 01
+0073 0073 s ?b0006:	ld a,l
+0074 0074 d bb
+0074 0074 u 01 01
+0074 0074 s 		cp e
+0075 0075 d 3801
+0075 0075 u 02 01
+0075 0075 s 		jr c,?c0006	; l < e  : lsb dist < lsb table lookup
+0077 0077 d c9
+0077 0077 u 01 01
+0077 0077 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0078 0078 d 0c
+0078 0078 u 01 01
+0078 0078 s ?c0006:		inc c
+0079 0079 s 		endm
+0079 0079 s 		check_hh hh_08
+0079 0079 d ed5b3301
+0079 0079 u 04 01
+0079 0079 s 		ld de,(hh_08)	; Do the table lookup for this half-height.
+007d 007d d 7c
+007d 007d u 01 01
+007d 007d s 		ld a,h
+007e 007e d ba
+007e 007e u 01 01
+007e 007e s 		cp d
+007f 007f d 3808
+007f 007f u 02 01
+007f 007f s 		jr c,?c0007	; h < d  : msb dist < msb table lookup
+0081 0081 d 2801
+0081 0081 u 02 01
+0081 0081 s 		jr z,?b0007	; h = d  : msb dist = msb table lookup
+0083 0083 d c9
+0083 0083 u 01 01
+0083 0083 s 		ret		; h > d	 : msb dist > msb table lookup
+0084 0084 d 7d
+0084 0084 u 01 01
+0084 0084 s ?b0007:	ld a,l
+0085 0085 d bb
+0085 0085 u 01 01
+0085 0085 s 		cp e
+0086 0086 d 3801
+0086 0086 u 02 01
+0086 0086 s 		jr c,?c0007	; l < e  : lsb dist < lsb table lookup
+0088 0088 d c9
+0088 0088 u 01 01
+0088 0088 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0089 0089 d 0c
+0089 0089 u 01 01
+0089 0089 s ?c0007:		inc c
+008a 008a s 		endm
+008a 008a s 		check_hh hh_09
+008a 008a d ed5b3501
+008a 008a u 04 01
+008a 008a s 		ld de,(hh_09)	; Do the table lookup for this half-height.
+008e 008e d 7c
+008e 008e u 01 01
+008e 008e s 		ld a,h
+008f 008f d ba
+008f 008f u 01 01
+008f 008f s 		cp d
+0090 0090 d 3808
+0090 0090 u 02 01
+0090 0090 s 		jr c,?c0008	; h < d  : msb dist < msb table lookup
+0092 0092 d 2801
+0092 0092 u 02 01
+0092 0092 s 		jr z,?b0008	; h = d  : msb dist = msb table lookup
+0094 0094 d c9
+0094 0094 u 01 01
+0094 0094 s 		ret		; h > d	 : msb dist > msb table lookup
+0095 0095 d 7d
+0095 0095 u 01 01
+0095 0095 s ?b0008:	ld a,l
+0096 0096 d bb
+0096 0096 u 01 01
+0096 0096 s 		cp e
+0097 0097 d 3801
+0097 0097 u 02 01
+0097 0097 s 		jr c,?c0008	; l < e  : lsb dist < lsb table lookup
+0099 0099 d c9
+0099 0099 u 01 01
+0099 0099 s 		ret		; l >= e : lsb dist >= lsb table lookup
+009a 009a d 0c
+009a 009a u 01 01
+009a 009a s ?c0008:		inc c
+009b 009b s 		endm
+009b 009b s 		check_hh hh_10
+009b 009b d ed5b3701
+009b 009b u 04 01
+009b 009b s 		ld de,(hh_10)	; Do the table lookup for this half-height.
+009f 009f d 7c
+009f 009f u 01 01
+009f 009f s 		ld a,h
+00a0 00a0 d ba
+00a0 00a0 u 01 01
+00a0 00a0 s 		cp d
+00a1 00a1 d 3808
+00a1 00a1 u 02 01
+00a1 00a1 s 		jr c,?c0009	; h < d  : msb dist < msb table lookup
+00a3 00a3 d 2801
+00a3 00a3 u 02 01
+00a3 00a3 s 		jr z,?b0009	; h = d  : msb dist = msb table lookup
+00a5 00a5 d c9
+00a5 00a5 u 01 01
+00a5 00a5 s 		ret		; h > d	 : msb dist > msb table lookup
+00a6 00a6 d 7d
+00a6 00a6 u 01 01
+00a6 00a6 s ?b0009:	ld a,l
+00a7 00a7 d bb
+00a7 00a7 u 01 01
+00a7 00a7 s 		cp e
+00a8 00a8 d 3801
+00a8 00a8 u 02 01
+00a8 00a8 s 		jr c,?c0009	; l < e  : lsb dist < lsb table lookup
+00aa 00aa d c9
+00aa 00aa u 01 01
+00aa 00aa s 		ret		; l >= e : lsb dist >= lsb table lookup
+00ab 00ab d 0c
+00ab 00ab u 01 01
+00ab 00ab s ?c0009:		inc c
+00ac 00ac s 		endm
+00ac 00ac s 		check_hh hh_11
+00ac 00ac d ed5b3901
+00ac 00ac u 04 01
+00ac 00ac s 		ld de,(hh_11)	; Do the table lookup for this half-height.
+00b0 00b0 d 7c
+00b0 00b0 u 01 01
+00b0 00b0 s 		ld a,h
+00b1 00b1 d ba
+00b1 00b1 u 01 01
+00b1 00b1 s 		cp d
+00b2 00b2 d 3808
+00b2 00b2 u 02 01
+00b2 00b2 s 		jr c,?c0010	; h < d  : msb dist < msb table lookup
+00b4 00b4 d 2801
+00b4 00b4 u 02 01
+00b4 00b4 s 		jr z,?b0010	; h = d  : msb dist = msb table lookup
+00b6 00b6 d c9
+00b6 00b6 u 01 01
+00b6 00b6 s 		ret		; h > d	 : msb dist > msb table lookup
+00b7 00b7 d 7d
+00b7 00b7 u 01 01
+00b7 00b7 s ?b0010:	ld a,l
+00b8 00b8 d bb
+00b8 00b8 u 01 01
+00b8 00b8 s 		cp e
+00b9 00b9 d 3801
+00b9 00b9 u 02 01
+00b9 00b9 s 		jr c,?c0010	; l < e  : lsb dist < lsb table lookup
+00bb 00bb d c9
+00bb 00bb u 01 01
+00bb 00bb s 		ret		; l >= e : lsb dist >= lsb table lookup
+00bc 00bc d 0c
+00bc 00bc u 01 01
+00bc 00bc s ?c0010:		inc c
+00bd 00bd s 		endm
+00bd 00bd s 		check_hh hh_12
+00bd 00bd d ed5b3b01
+00bd 00bd u 04 01
+00bd 00bd s 		ld de,(hh_12)	; Do the table lookup for this half-height.
+00c1 00c1 d 7c
+00c1 00c1 u 01 01
+00c1 00c1 s 		ld a,h
+00c2 00c2 d ba
+00c2 00c2 u 01 01
+00c2 00c2 s 		cp d
+00c3 00c3 d 3808
+00c3 00c3 u 02 01
+00c3 00c3 s 		jr c,?c0011	; h < d  : msb dist < msb table lookup
+00c5 00c5 d 2801
+00c5 00c5 u 02 01
+00c5 00c5 s 		jr z,?b0011	; h = d  : msb dist = msb table lookup
+00c7 00c7 d c9
+00c7 00c7 u 01 01
+00c7 00c7 s 		ret		; h > d	 : msb dist > msb table lookup
+00c8 00c8 d 7d
+00c8 00c8 u 01 01
+00c8 00c8 s ?b0011:	ld a,l
+00c9 00c9 d bb
+00c9 00c9 u 01 01
+00c9 00c9 s 		cp e
+00ca 00ca d 3801
+00ca 00ca u 02 01
+00ca 00ca s 		jr c,?c0011	; l < e  : lsb dist < lsb table lookup
+00cc 00cc d c9
+00cc 00cc u 01 01
+00cc 00cc s 		ret		; l >= e : lsb dist >= lsb table lookup
+00cd 00cd d 0c
+00cd 00cd u 01 01
+00cd 00cd s ?c0011:		inc c
+00ce 00ce s 		endm
+00ce 00ce s 		check_hh hh_13
+00ce 00ce d ed5b3d01
+00ce 00ce u 04 01
+00ce 00ce s 		ld de,(hh_13)	; Do the table lookup for this half-height.
+00d2 00d2 d 7c
+00d2 00d2 u 01 01
+00d2 00d2 s 		ld a,h
+00d3 00d3 d ba
+00d3 00d3 u 01 01
+00d3 00d3 s 		cp d
+00d4 00d4 d 3808
+00d4 00d4 u 02 01
+00d4 00d4 s 		jr c,?c0012	; h < d  : msb dist < msb table lookup
+00d6 00d6 d 2801
+00d6 00d6 u 02 01
+00d6 00d6 s 		jr z,?b0012	; h = d  : msb dist = msb table lookup
+00d8 00d8 d c9
+00d8 00d8 u 01 01
+00d8 00d8 s 		ret		; h > d	 : msb dist > msb table lookup
+00d9 00d9 d 7d
+00d9 00d9 u 01 01
+00d9 00d9 s ?b0012:	ld a,l
+00da 00da d bb
+00da 00da u 01 01
+00da 00da s 		cp e
+00db 00db d 3801
+00db 00db u 02 01
+00db 00db s 		jr c,?c0012	; l < e  : lsb dist < lsb table lookup
+00dd 00dd d c9
+00dd 00dd u 01 01
+00dd 00dd s 		ret		; l >= e : lsb dist >= lsb table lookup
+00de 00de d 0c
+00de 00de u 01 01
+00de 00de s ?c0012:		inc c
+00df 00df s 		endm
+00df 00df s 		check_hh hh_14
+00df 00df d ed5b3f01
+00df 00df u 04 01
+00df 00df s 		ld de,(hh_14)	; Do the table lookup for this half-height.
+00e3 00e3 d 7c
+00e3 00e3 u 01 01
+00e3 00e3 s 		ld a,h
+00e4 00e4 d ba
+00e4 00e4 u 01 01
+00e4 00e4 s 		cp d
+00e5 00e5 d 3808
+00e5 00e5 u 02 01
+00e5 00e5 s 		jr c,?c0013	; h < d  : msb dist < msb table lookup
+00e7 00e7 d 2801
+00e7 00e7 u 02 01
+00e7 00e7 s 		jr z,?b0013	; h = d  : msb dist = msb table lookup
+00e9 00e9 d c9
+00e9 00e9 u 01 01
+00e9 00e9 s 		ret		; h > d	 : msb dist > msb table lookup
+00ea 00ea d 7d
+00ea 00ea u 01 01
+00ea 00ea s ?b0013:	ld a,l
+00eb 00eb d bb
+00eb 00eb u 01 01
+00eb 00eb s 		cp e
+00ec 00ec d 3801
+00ec 00ec u 02 01
+00ec 00ec s 		jr c,?c0013	; l < e  : lsb dist < lsb table lookup
+00ee 00ee d c9
+00ee 00ee u 01 01
+00ee 00ee s 		ret		; l >= e : lsb dist >= lsb table lookup
+00ef 00ef d 0c
+00ef 00ef u 01 01
+00ef 00ef s ?c0013:		inc c
+00f0 00f0 s 		endm
+00f0 00f0 s 		check_hh hh_15
+00f0 00f0 d ed5b4101
+00f0 00f0 u 04 01
+00f0 00f0 s 		ld de,(hh_15)	; Do the table lookup for this half-height.
+00f4 00f4 d 7c
+00f4 00f4 u 01 01
+00f4 00f4 s 		ld a,h
+00f5 00f5 d ba
+00f5 00f5 u 01 01
+00f5 00f5 s 		cp d
+00f6 00f6 d 3808
+00f6 00f6 u 02 01
+00f6 00f6 s 		jr c,?c0014	; h < d  : msb dist < msb table lookup
+00f8 00f8 d 2801
+00f8 00f8 u 02 01
+00f8 00f8 s 		jr z,?b0014	; h = d  : msb dist = msb table lookup
+00fa 00fa d c9
+00fa 00fa u 01 01
+00fa 00fa s 		ret		; h > d	 : msb dist > msb table lookup
+00fb 00fb d 7d
+00fb 00fb u 01 01
+00fb 00fb s ?b0014:	ld a,l
+00fc 00fc d bb
+00fc 00fc u 01 01
+00fc 00fc s 		cp e
+00fd 00fd d 3801
+00fd 00fd u 02 01
+00fd 00fd s 		jr c,?c0014	; l < e  : lsb dist < lsb table lookup
+00ff 00ff d c9
+00ff 00ff u 01 01
+00ff 00ff s 		ret		; l >= e : lsb dist >= lsb table lookup
+0100 0100 d 0c
+0100 0100 u 01 01
+0100 0100 s ?c0014:		inc c
+0101 0101 s 		endm
+0101 0101 s 		check_hh hh_16
+0101 0101 d ed5b4301
+0101 0101 u 04 01
+0101 0101 s 		ld de,(hh_16)	; Do the table lookup for this half-height.
+0105 0105 d 7c
+0105 0105 u 01 01
+0105 0105 s 		ld a,h
+0106 0106 d ba
+0106 0106 u 01 01
+0106 0106 s 		cp d
+0107 0107 d 3808
+0107 0107 u 02 01
+0107 0107 s 		jr c,?c0015	; h < d  : msb dist < msb table lookup
+0109 0109 d 2801
+0109 0109 u 02 01
+0109 0109 s 		jr z,?b0015	; h = d  : msb dist = msb table lookup
+010b 010b d c9
+010b 010b u 01 01
+010b 010b s 		ret		; h > d	 : msb dist > msb table lookup
+010c 010c d 7d
+010c 010c u 01 01
+010c 010c s ?b0015:	ld a,l
+010d 010d d bb
+010d 010d u 01 01
+010d 010d s 		cp e
+010e 010e d 3801
+010e 010e u 02 01
+010e 010e s 		jr c,?c0015	; l < e  : lsb dist < lsb table lookup
+0110 0110 d c9
+0110 0110 u 01 01
+0110 0110 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0111 0111 d 0c
+0111 0111 u 01 01
+0111 0111 s ?c0015:		inc c
+0112 0112 s 		endm
+0112 0112 s 		check_hh hh_17
+0112 0112 d ed5b4501
+0112 0112 u 04 01
+0112 0112 s 		ld de,(hh_17)	; Do the table lookup for this half-height.
+0116 0116 d 7c
+0116 0116 u 01 01
+0116 0116 s 		ld a,h
+0117 0117 d ba
+0117 0117 u 01 01
+0117 0117 s 		cp d
+0118 0118 d 3808
+0118 0118 u 02 01
+0118 0118 s 		jr c,?c0016	; h < d  : msb dist < msb table lookup
+011a 011a d 2801
+011a 011a u 02 01
+011a 011a s 		jr z,?b0016	; h = d  : msb dist = msb table lookup
+011c 011c d c9
+011c 011c u 01 01
+011c 011c s 		ret		; h > d	 : msb dist > msb table lookup
+011d 011d d 7d
+011d 011d u 01 01
+011d 011d s ?b0016:	ld a,l
+011e 011e d bb
+011e 011e u 01 01
+011e 011e s 		cp e
+011f 011f d 3801
+011f 011f u 02 01
+011f 011f s 		jr c,?c0016	; l < e  : lsb dist < lsb table lookup
+0121 0121 d c9
+0121 0121 u 01 01
+0121 0121 s 		ret		; l >= e : lsb dist >= lsb table lookup
+0122 0122 d 0c
+0122 0122 u 01 01
+0122 0122 s ?c0016:		inc c
+0123 0123 s 		endm
+0123 0123 d 0d
+0123 0123 u 01 01
+0123 0123 s 		dec c		; 17 is the maximum value we want to return.
+0124 0124 d c9
+0124 0124 u 01 01
+0124 0124 s 		ret
+0125 0125 s 
+0125 0125 s ; Table of half-heights mapping to the smallest distance which should
+0125 0125 s ; use a particular half-height to draw a wall.
+0125 0125 d 0011
+0125 0125 u 02 02
+0125 0125 s hh_01		 defw	4352	; map distance 17.0
+0127 0127 d 0010
+0127 0127 u 02 02
+0127 0127 s hh_02		 defw	4096	; map distance 16.0
+0129 0129 d 000f
+0129 0129 u 02 02
+0129 0129 s hh_03		 defw	3840	; map distance 15.0
+012b 012b d 000e
+012b 012b u 02 02
+012b 012b s hh_04		 defw	3584	; map distance 14.0
+012d 012d d 000d
+012d 012d u 02 02
+012d 012d s hh_05		 defw	3328	; map distance 13.0
+012f 012f d 000c
+012f 012f u 02 02
+012f 012f s hh_06		 defw	3072	; map distance 12.0
+0131 0131 d 000b
+0131 0131 u 02 02
+0131 0131 s hh_07		 defw	2816	; map distance 11.0
+0133 0133 d 000a
+0133 0133 u 02 02
+0133 0133 s hh_08		 defw	2560	; map distance 10.0
+0135 0135 d 0009
+0135 0135 u 02 02
+0135 0135 s hh_09		 defw	2304	; map distance 9.0
+0137 0137 d 0008
+0137 0137 u 02 02
+0137 0137 s hh_10		 defw	2048	; map distance 8.0
+0139 0139 d 0007
+0139 0139 u 02 02
+0139 0139 s hh_11		 defw	1792	; map distance 7.0
+013b 013b d 0006
+013b 013b u 02 02
+013b 013b s hh_12		 defw	1536	; map distance 6.0
+013d 013d d 0005
+013d 013d u 02 02
+013d 013d s hh_13		 defw	1280	; map distance 5.0
+013f 013f d 0004
+013f 013f u 02 02
+013f 013f s hh_14		 defw	1024	; map distance 4.0
+0141 0141 d 0003
+0141 0141 u 02 02
+0141 0141 s hh_15		 defw	768	; map distance 3.0
+0143 0143 d 0002
+0143 0143 u 02 02
+0143 0143 s hh_16		 defw	512	; map distance 2.0
+0145 0145 d 0001
+0145 0145 u 02 02
+0145 0145 s hh_17		 defw	256	; map distance 1.0
+0147 0147 s 
+0125 a hh_01
+0127 a hh_02
+0129 a hh_03
+012b a hh_04
+012d a hh_05
+012f a hh_06
+0131 a hh_07
+0133 a hh_08
+0135 a hh_09
+0137 a hh_10
+0139 a hh_11
+013b a hh_12
+013d a hh_13
+013f a hh_14
+0141 a hh_15
+0143 a hh_16
+0145 a hh_17
+0012 a ?c0000
+0023 a ?c0001
+0034 a ?c0002
+0045 a ?c0003
+0056 a ?c0004
+0067 a ?c0005
+0078 a ?c0006
+0089 a ?c0007
+009a a ?c0008
+00ab a ?c0009
+00bc a ?c0010
+00cd a ?c0011
+00de a ?c0012
+00ef a ?c0013
+0100 a ?c0014
+0111 a ?c0015
+0122 a ?c0016
+0000 a dist_to_hh
+000d a ?b0000
+001e a ?b0001
+002f a ?b0002
+0040 a ?b0003
+0051 a ?b0004
+0062 a ?b0005
+0073 a ?b0006
+0084 a ?b0007
+0095 a ?b0008
+00a6 a ?b0009
+00b7 a ?b0010
+00c8 a ?b0011
+00d9 a ?b0012
+00ea a ?b0013
+00fb a ?b0014
+010c a ?b0015
+011d a ?b0016

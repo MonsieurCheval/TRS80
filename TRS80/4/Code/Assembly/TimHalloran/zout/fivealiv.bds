@@ -1,0 +1,46 @@
+binary-debuggable-source
+0000 0000 f fivealiv.asm
+0000 0000 s ; fivealiv.asm
+0000 0000 s ;   Adds a few numbers (no screen output)
+0000 0000 s ;
+0000 0000 s ; zmac fivealiv.asm
+0000 0000 s ; trs80gp -b main zout/fivealiv.bds
+5200 5200 s   org $5200
+5200 5200 s 
+5200 5200 d 02
+5200 5200 u 01 02
+5200 5200 s num	defb	2
+5201 5201 s 
+5201 5201 s main:
+5201 5201 d 21003c
+5201 5201 u 03 01
+5201 5201 s   LD   HL,3C00h   ; screen position
+5204 5204 d 110e52
+5204 5204 u 03 01
+5204 5204 s   LD   DE,MSG
+5207 5207 d 1a
+5207 5207 u 01 01
+5207 5207 s   LD   A,(DE)
+5208 5208 d b7
+5208 5208 u 01 01
+5208 5208 s   OR   A          ; zero = end of string
+5209 5209 d 77
+5209 5209 u 01 01
+5209 5209 s   LD   (HL),A
+520a 520a d 23
+520a 520a u 01 01
+520a 520a s   INC  HL
+520b 520b d 13
+520b 520b u 01 01
+520b 520b s   INC  DE
+520c 520c d 18f3
+520c 520c u 02 01
+520c 520c s   JR   main
+520e 520e s 
+520e 520e f fivealiv.asm
+520e 520e d 48454c4c4f00
+520e 520e u 06 02
+520e 520e s MSG:    DB 'HELLO',0
+5201 a main
+520e a MSG
+5200 a num

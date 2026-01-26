@@ -1,0 +1,232 @@
+binary-debuggable-source
+0000 0000 f led_invaders.asm
+0000 0000 s ; led_invaders.asm
+0000 0000 s ;   Animated space invaders-like aliens invade the TRS-80 screen. The aliens
+0000 0000 s ;   look strangly like LEDs due to my artwork.
+0000 0000 s ;
+0000 0000 s ; zmac led_invaders.asm
+0000 0000 s ; trs80gp.exe -m1 zout/led_invaders.cmd
+0000 0000 s screen	equ	$3c00
+0000 0000 s 
+5200 5200 s   org $5200
+5200 5200 s 
+5200 5200 s ; Frame 1 of the ship animation: 3 characters X 2 lines.
+5200 5200 s 		; 0 1     1 1       1 0
+5200 5200 s 		; 0 1     0 0       1 0
+5200 5200 s 		; 1 1     1 1       1 1
+5200 5200 d bab3b5
+5200 5200 u 03 02
+5200 5200 s frame1	defb	10111010b,10110011b,10110101b
+5203 5203 s 		; 0 1     0 0       1 0
+5203 5203 s 		; 1 0     0 1       0 0
+5203 5203 s 		; 0 1     0 0       1 0
+5203 5203 d a68891
+5203 5203 u 03 02
+5203 5203 s 	defb	10100110b,10001000b,10010001b
+5206 5206 s 
+5206 5206 s ; Frame 2 of the ship animation: 3 characters X 2 lines.
+5206 5206 s 		; 0 1     1 1       1 0
+5206 5206 s 		; 0 1     1 1       1 0
+5206 5206 s 		; 1 1     1 1       1 1
+5206 5206 d babfb5
+5206 5206 u 03 02
+5206 5206 s frame2	defb	10111010b,10111111b,10110101b
+5209 5209 s 		; 0 1     0 0       1 0
+5209 5209 s 		; 0 0     1 0       0 1
+5209 5209 s 		; 0 1     0 0       1 0
+5209 5209 d a28499
+5209 5209 u 03 02
+5209 5209 s 	defb	10100010b,10000100b,10011001b
+520c 520c s 
+520c 520c s ; Clears the screen.
+520c 520c s clear_screen:
+520c 520c d 21003c
+520c 520c u 03 01
+520c 520c s   ld    hl,screen
+520f 520f d 11013c
+520f 520f u 03 01
+520f 520f s   ld    de,screen+1
+5212 5212 d 01ff03
+5212 5212 u 03 01
+5212 5212 s   ld    bc,$400-1
+5215 5215 d 3620
+5215 5215 u 02 01
+5215 5215 s   ld    (hl),' ' ; fill with spaces
+5217 5217 d edb0
+5217 5217 u 02 01
+5217 5217 s   ldir
+5219 5219 d c9
+5219 5219 u 01 01
+5219 5219 s   ret
+521a 521a s 
+521a 521a s ; Draws a frame of 3 characters X 2 lines on the screen at the passed address.
+521a 521a s ;   hl - screen address
+521a 521a s ;   ix - frame address
+521a 521a s draw_frame:
+521a 521a s   ; Draw the top 3 characters on the screen.
+521a 521a d dd7e00
+521a 521a u 03 01
+521a 521a s   ld a,(ix)
+521d 521d d 77
+521d 521d u 01 01
+521d 521d s   ld (hl),a
+521e 521e d 23
+521e 521e u 01 01
+521e 521e s   inc hl
+521f 521f d dd7e01
+521f 521f u 03 01
+521f 521f s   ld a,(ix+1)
+5222 5222 d 77
+5222 5222 u 01 01
+5222 5222 s   ld (hl),a
+5223 5223 d 23
+5223 5223 u 01 01
+5223 5223 s   inc hl
+5224 5224 d dd7e02
+5224 5224 u 03 01
+5224 5224 s   ld a,(ix+2)
+5227 5227 d 77
+5227 5227 u 01 01
+5227 5227 s   ld (hl),a
+5228 5228 s   ; Drop to the next line.
+5228 5228 d 013e00
+5228 5228 u 03 01
+5228 5228 s   ld bc,62
+522b 522b d 09
+522b 522b u 01 01
+522b 522b s   add hl,bc
+522c 522c s   ; Draw the bottom 3 characters on the screen.
+522c 522c d dd7e03
+522c 522c u 03 01
+522c 522c s   ld a,(ix+3)
+522f 522f d 77
+522f 522f u 01 01
+522f 522f s   ld (hl),a
+5230 5230 d 23
+5230 5230 u 01 01
+5230 5230 s   inc hl
+5231 5231 d dd7e04
+5231 5231 u 03 01
+5231 5231 s   ld a,(ix+4)
+5234 5234 d 77
+5234 5234 u 01 01
+5234 5234 s   ld (hl),a
+5235 5235 d 23
+5235 5235 u 01 01
+5235 5235 s   inc hl
+5236 5236 d dd7e05
+5236 5236 u 03 01
+5236 5236 s   ld a,(ix+5)
+5239 5239 d 77
+5239 5239 u 01 01
+5239 5239 s   ld (hl),a
+523a 523a d c9
+523a 523a u 01 01
+523a 523a s   ret
+523b 523b s 
+523b 523b s ; Draws a row of invaders on the screen using the passed animation frame.
+523b 523b s ;   ix - frame address
+523b 523b s draw_screen:
+523b 523b d 214f3d
+523b 523b u 03 01
+523b 523b s   ld hl,screen+(64*5)+15
+523e 523e d cd1a52
+523e 523e u 03 01
+523e 523e s   call draw_frame
+5241 5241 d 21543d
+5241 5241 u 03 01
+5241 5241 s   ld hl,screen+(64*5)+20
+5244 5244 d cd1a52
+5244 5244 u 03 01
+5244 5244 s   call draw_frame
+5247 5247 d 21593d
+5247 5247 u 03 01
+5247 5247 s   ld hl,screen+(64*5)+25
+524a 524a d cd1a52
+524a 524a u 03 01
+524a 524a s   call draw_frame
+524d 524d d 215e3d
+524d 524d u 03 01
+524d 524d s   ld hl,screen+(64*5)+30
+5250 5250 d cd1a52
+5250 5250 u 03 01
+5250 5250 s   call draw_frame
+5253 5253 d 21633d
+5253 5253 u 03 01
+5253 5253 s   ld hl,screen+(64*5)+35
+5256 5256 d cd1a52
+5256 5256 u 03 01
+5256 5256 s   call draw_frame
+5259 5259 d 21683d
+5259 5259 u 03 01
+5259 5259 s   ld hl,screen+(64*5)+40
+525c 525c d cd1a52
+525c 525c u 03 01
+525c 525c s   call draw_frame
+525f 525f d 216d3d
+525f 525f u 03 01
+525f 525f s   ld hl,screen+(64*5)+45
+5262 5262 d cd1a52
+5262 5262 u 03 01
+5262 5262 s   call draw_frame
+5265 5265 d c9
+5265 5265 u 01 01
+5265 5265 s   ret
+5266 5266 s 
+5266 5266 s ; Pauses for a short period so the animation is not a blur.
+5266 5266 s wait:
+5266 5266 d 01ffff
+5266 5266 u 03 01
+5266 5266 s   ld bc,$ffff
+5269 5269 d 10fe
+5269 5269 u 02 01
+5269 5269 s wait_loop: djnz wait_loop
+526b 526b d 0d
+526b 526b u 01 01
+526b 526b s   dec c
+526c 526c d 20fb
+526c 526c u 02 01
+526c 526c s   jr nz,wait_loop
+526e 526e d c9
+526e 526e u 01 01
+526e 526e s   ret
+526f 526f s 
+526f 526f s ; Our main progam that loops doing the animation until reboot.
+526f 526f s main:
+526f 526f d cd0c52
+526f 526f u 03 01
+526f 526f s   call clear_screen
+5272 5272 s animation_loop:
+5272 5272 d dd210052
+5272 5272 u 04 01
+5272 5272 s   ld ix,frame1
+5276 5276 d cd3b52
+5276 5276 u 03 01
+5276 5276 s   call draw_screen
+5279 5279 d cd6652
+5279 5279 u 03 01
+5279 5279 s   call wait
+527c 527c d dd210652
+527c 527c u 04 01
+527c 527c s   ld ix,frame2
+5280 5280 d cd3b52
+5280 5280 u 03 01
+5280 5280 s   call draw_screen
+5283 5283 d cd6652
+5283 5283 u 03 01
+5283 5283 s   call wait
+5286 5286 d 18ea
+5286 5286 u 02 01
+5286 5286 s   jr animation_loop
+5288 5288 s   end main
+526f e
+523b a draw_screen
+5266 a wait
+5200 a frame1
+5206 a frame2
+526f a main
+5269 a wait_loop
+520c a clear_screen
+521a a draw_frame
+5272 a animation_loop
+3c00 v screen

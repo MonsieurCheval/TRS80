@@ -1,0 +1,47 @@
+   1:				; gp_keydraw.asm
+   2:				;   Draws while you press a key (by George Phillips, I added "equ"s)
+   3:				;
+   4:				; zmac gp_keydraw.asm
+   5:				; trs80gp zout/gp_keydraw.bds
+   6:     -	3C00          	screen	equ	$3c00
+   7:     -	00BF          	block	equ	$bf ; This is 1011 1111 in binary (a graphic block)
+   8:				
+   9:     -	5200          		org	$5200
+  10:    0+4	5200  F3      	start:	di			; no blinking cursor
+  11:    4+7	5201  0EBF    		ld	c,block
+  12:   11+10	5203  21003C  	again:	ld	hl,screen
+  13:   21+13	5206  3AFF38  	wait:	ld	a,($38ff)	; spin if no keys pressed
+  14:   34+4	5209  B7      		or	a
+  15:   38+7+5	520A  28FA    		jr	z,wait
+  16:   45+7	520C  71      		ld	(hl),c
+  17:   52+6	520D  23      		inc	hl
+  18:   58+7	520E  061E    		ld	b,30
+  19:   65+8+5	5210  10FE    	delay:	djnz	delay		; start with this removed
+  20:   73+8	5212  CB74    		bit	6,h
+  21:   81+7+5	5214  28F0    		jr	z,wait		; keep going until HL == $4000
+  22:   88+4	5216  79      		ld	a,c
+  23:   92+7	5217  EE3F    		xor	$3f		; flip between 191 and 128
+  24:   99+4	5219  4F      		ld	c,a
+  25:  103+12	521A  18E7    		jr	again		; go back to top of screen
+  26:				
+  27:     -	5200          		end	start
+
+
+
+Statistics:
+
+     3	passes
+     0	jr promotions
+     6	symbols
+    28	bytes
+
+
+
+Symbol Table:
+
+again           5203      20995
+block          =BF        191
+delay           5210      21008
+screen         =3C00      15360
+start           5200      20992
+wait            5206      20998

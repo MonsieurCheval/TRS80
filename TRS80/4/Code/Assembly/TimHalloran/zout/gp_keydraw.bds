@@ -1,0 +1,68 @@
+binary-debuggable-source
+0000 0000 f gp_keydraw.asm
+0000 0000 s ; gp_keydraw.asm
+0000 0000 s ;   Draws while you press a key (by George Phillips, I added "equ"s)
+0000 0000 s ;
+0000 0000 s ; zmac gp_keydraw.asm
+0000 0000 s ; trs80gp zout/gp_keydraw.bds
+0000 0000 s screen	equ	$3c00
+0000 0000 s block	equ	$bf ; This is 1011 1111 in binary (a graphic block)
+0000 0000 s 
+5200 5200 s 	org	$5200
+5200 5200 d f3
+5200 5200 u 01 01
+5200 5200 s start:	di			; no blinking cursor
+5201 5201 d 0ebf
+5201 5201 u 02 01
+5201 5201 s 	ld	c,block
+5203 5203 d 21003c
+5203 5203 u 03 01
+5203 5203 s again:	ld	hl,screen
+5206 5206 d 3aff38
+5206 5206 u 03 01
+5206 5206 s wait:	ld	a,($38ff)	; spin if no keys pressed
+5209 5209 d b7
+5209 5209 u 01 01
+5209 5209 s 	or	a
+520a 520a d 28fa
+520a 520a u 02 01
+520a 520a s 	jr	z,wait
+520c 520c d 71
+520c 520c u 01 01
+520c 520c s 	ld	(hl),c
+520d 520d d 23
+520d 520d u 01 01
+520d 520d s 	inc	hl
+520e 520e d 061e
+520e 520e u 02 01
+520e 520e s 	ld	b,30
+5210 5210 d 10fe
+5210 5210 u 02 01
+5210 5210 s delay:	djnz	delay		; start with this removed
+5212 5212 d cb74
+5212 5212 u 02 01
+5212 5212 s 	bit	6,h
+5214 5214 d 28f0
+5214 5214 u 02 01
+5214 5214 s 	jr	z,wait		; keep going until HL == $4000
+5216 5216 d 79
+5216 5216 u 01 01
+5216 5216 s 	ld	a,c
+5217 5217 d ee3f
+5217 5217 u 02 01
+5217 5217 s 	xor	$3f		; flip between 191 and 128
+5219 5219 d 4f
+5219 5219 u 01 01
+5219 5219 s 	ld	c,a
+521a 521a d 18e7
+521a 521a u 02 01
+521a 521a s 	jr	again		; go back to top of screen
+521c 521c s 
+521c 521c s 	end	start
+5200 e
+5210 a delay
+5206 a wait
+5200 a start
+5203 a again
+00bf v block
+3c00 v screen

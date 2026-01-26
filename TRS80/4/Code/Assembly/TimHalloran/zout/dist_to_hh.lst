@@ -1,0 +1,216 @@
+   1:				;  _____  _     _     _______                              
+   2:				; |  __ \(_)   | |   |__   __|                             
+   3:				; | |  | |_ ___| |_     | | ___                            
+   4:				; | |  | | / __| __|    | |/ _ \                           
+   5:				; | |__| | \__ \ |_     | | (_) |                          
+   6:				; |_____/|_|___/\__|_   |_|\___/  _      _       _     _   
+   7:				; | |  | |     | |/ _|      | |  | |    (_)     | |   | |  
+   8:				; | |__| | __ _| | |_ ______| |__| | ___ _  __ _| |__ | |_ 
+   9:				; |  __  |/ _` | |  _|______|  __  |/ _ \ |/ _` | '_ \| __|
+  10:				; | |  | | (_| | | |        | |  | |  __/ | (_| | | | | |_ 
+  11:				; |_|  |_|\__,_|_|_|        |_|  |_|\___|_|\__, |_| |_|\__|
+  12:				;                                           __/ |          
+  13:				;                                          |___/      
+  14:				; Author: Tim Halloran
+  15:				; From the tutorial at https://lodev.org/cgtutor/raycasting.html
+  16:				
+  17:				; Returns c if hl >= (addr). Complex because we are doing a 16-bit comparison.
+  18:				check_hh	macro	addr,?chk_lsb,?next
+  19:						ld de,(addr)	; Do the table lookup for this half-height.
+  20:						ld a,h
+  21:						cp d
+  22:						jr c,?next	; h < d  : msb dist < msb table lookup
+  23:						jr z,?chk_lsb	; h = d  : msb dist = msb table lookup
+  24:						ret		; h > d	 : msb dist > msb table lookup
+  25:				?chk_lsb:	ld a,l
+  26:						cp e
+  27:						jr c,?next	; l < e  : lsb dist < lsb table lookup
+  28:						ret		; l >= e : lsb dist >= lsb table lookup
+  29:				?next:		inc c
+  30:						endm
+  31:				
+  32:				; Returns the half-height of a wall given the passed distance to it.
+  33:				;
+  34:				; Uses: a,c,de,hl
+  35:				;
+  36:				; Enter: hl  distance to wall.
+  37:				; Exit:  c   half-height of wall: (1,17).
+  38:    0+7	0000  0E01    	dist_to_hh:	ld c,1
+  39:    7+81	0002  ED5B2501			check_hh hh_01
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  40:   88+81	0013  ED5B2701			check_hh hh_02
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  41:  169+81	0024  ED5B2901			check_hh hh_03
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  42:  250+81	0035  ED5B2B01			check_hh hh_04
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  43:  331+81	0046  ED5B2D01			check_hh hh_05
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  44:  412+81	0057  ED5B2F01			check_hh hh_06
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  45:  493+81	0068  ED5B3101			check_hh hh_07
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  46:  574+81	0079  ED5B3301			check_hh hh_08
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  47:  655+81	008A  ED5B3501			check_hh hh_09
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  48:  736+81	009B  ED5B3701			check_hh hh_10
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  49:  817+81	00AC  ED5B3901			check_hh hh_11
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  50:  898+81	00BD  ED5B3B01			check_hh hh_12
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  51:  979+81	00CE  ED5B3D01			check_hh hh_13
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  52: 1060+81	00DF  ED5B3F01			check_hh hh_14
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  53: 1141+81	00F0  ED5B4101			check_hh hh_15
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  54: 1222+81	0101  ED5B4301			check_hh hh_16
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  55: 1303+81	0112  ED5B4501			check_hh hh_17
+	              7CBA3808
+	              2801C97D
+	              BB3801C9
+	              0C
+  56: 1384+4	0123  0D      			dec c		; 17 is the maximum value we want to return.
+  57: 1388+10	0124  C9      			ret
+  58:				
+  59:				; Table of half-heights mapping to the smallest distance which should
+  60:				; use a particular half-height to draw a wall.
+  61:     -	0125  0011    	hh_01		 defw	4352	; map distance 17.0
+  62:     -	0127  0010    	hh_02		 defw	4096	; map distance 16.0
+  63:     -	0129  000F    	hh_03		 defw	3840	; map distance 15.0
+  64:     -	012B  000E    	hh_04		 defw	3584	; map distance 14.0
+  65:     -	012D  000D    	hh_05		 defw	3328	; map distance 13.0
+  66:     -	012F  000C    	hh_06		 defw	3072	; map distance 12.0
+  67:     -	0131  000B    	hh_07		 defw	2816	; map distance 11.0
+  68:     -	0133  000A    	hh_08		 defw	2560	; map distance 10.0
+  69:     -	0135  0009    	hh_09		 defw	2304	; map distance 9.0
+  70:     -	0137  0008    	hh_10		 defw	2048	; map distance 8.0
+  71:     -	0139  0007    	hh_11		 defw	1792	; map distance 7.0
+  72:     -	013B  0006    	hh_12		 defw	1536	; map distance 6.0
+  73:     -	013D  0005    	hh_13		 defw	1280	; map distance 5.0
+  74:     -	013F  0004    	hh_14		 defw	1024	; map distance 4.0
+  75:     -	0141  0003    	hh_15		 defw	768	; map distance 3.0
+  76:     -	0143  0002    	hh_16		 defw	512	; map distance 2.0
+  77:     -	0145  0001    	hh_17		 defw	256	; map distance 1.0
+  78:				
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    52	symbols
+   327	bytes
+
+    17	macro calls
+   350	macro bytes
+   170	invented symbols
+
+
+
+Symbol Table:
+
+?b0000          0D        13
+?b0001          1E        30
+?b0002          2F        47
+?b0003          40        64
+?b0004          51        81
+?b0005          62        98
+?b0006          73        115
+?b0007          84        132
+?b0008          95        149
+?b0009          A6        166
+?b0010          B7        183
+?b0011          C8        200
+?b0012          D9        217
+?b0013          EA        234
+?b0014          FB        251
+?b0015           10C      268
+?b0016           11D      285
+?c0000          12        18
+?c0001          23        35
+?c0002          34        52
+?c0003          45        69
+?c0004          56        86
+?c0005          67        103
+?c0006          78        120
+?c0007          89        137
+?c0008          9A        154
+?c0009          AB        171
+?c0010          BC        188
+?c0011          CD        205
+?c0012          DE        222
+?c0013          EF        239
+?c0014           100      256
+?c0015           111      273
+?c0016           122      290
+dist_to_hh      00        0
+hh_01            125      293
+hh_02            127      295
+hh_03            129      297
+hh_04            12B      299
+hh_05            12D      301
+hh_06            12F      303
+hh_07            131      305
+hh_08            133      307
+hh_09            135      309
+hh_10            137      311
+hh_11            139      313
+hh_12            13B      315
+hh_13            13D      317
+hh_14            13F      319
+hh_15            141      321
+hh_16            143      323
+hh_17            145      325

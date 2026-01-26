@@ -1,0 +1,449 @@
+   1:				;  _____                      __          __   _ _     
+   2:				; |  __ \                     \ \        / /  | | |    
+   3:				; | |  | |_ __ __ ___      __  \ \  /\  / /_ _| | |___ 
+   4:				; | |  | | '__/ _` \ \ /\ / /   \ \/  \/ / _` | | / __|
+   5:				; | |__| | | | (_| |\ V  V /     \  /\  / (_| | | \__ \
+   6:				; |_____/|_|  \__,_| \_/\_/       \/  \/ \__,_|_|_|___/
+   7:				;
+   8:				; Author: Tim Halloran
+   9:				; From the tutorial at https://lodev.org/cgtutor/raycasting.html
+  10:				
+  11:				; Draws vertical lines that act as walls for a 11-line ray caster.
+  12:				; Two types of walls are supported:
+  13:				;         solid: |    outline: ·
+  14:				;                | |             ·
+  15:				;                |             ·
+  16:				; Why two types? We want to allow drawing of running into X or Y walls in the
+  17:				; raycaster in different styles -- this looks much better to the user.
+  18:				;
+  19:				; Walls may only take up to 11 vertical character positions on the screen.
+  20:				; If displaying the top of the screen, then pass a character address on
+  21:				; the 6th line of video memory (or back buffer representing the display).
+  22:				;
+  23:				; All of the code below is implementation details except:
+  24:				;
+  25:				; draw_solid_wall   : draws a vertical line centered on the passed addr
+  26:				;                     with the given half-height.
+  27:				; draw_outline_wall : draws the top and bottom dot of a vertical line
+  28:				;                     centered on the passed addr with the given half-height.
+  29:				
+  30:				; Draws the center character position of a solid wall. The center
+  31:				; character position, unlike all others, has only a one or two
+  32:				; half-height.
+  33:				; Entry:
+  34:				;  ix = addr of the center char position.
+  35:				;  iy = addr of the half-height of the desired line
+  36:				; Exit:
+  37:				;  c = the remaining half-height of the desired line
+  38:				; @private
+  39:				solid_center_wall_seg	macro	?hh1,?hh2,?hh3
+  40:							ld a,(iy)
+  41:							; We'll hold the remaining half-height in c.
+  42:							ld c,a
+  43:							or a
+  44:							; Check if the half-height is zero.
+  45:							jr nz,?hh1
+  46:							ret
+  47:				?hh1:			dec c
+  48:							jr nz,?hh2
+  49:							ld a,$8c	; r and l mid dots.
+  50:							ld (ix),a
+  51:							ret
+  52:				?hh2:			dec c
+  53:							jr nz,?hh3
+  54:							ld a,$bb	; r and l top and bot dots, l mid.
+  55:							ld (ix),a
+  56:							ret
+  57:				?hh3:			ld a, $95	; all l dots.
+  58:							ld (ix),a
+  59:							endm
+  60:				
+  61:				; Draws the outline at the center character position of a black wall,
+  62:				; if necessary. The center character position, unlike all others, has
+  63:				; only a one or two half-height.
+  64:				; Entry:
+  65:				;  ix = addr of the center char position.
+  66:				;  iy = addr of the half-height of the desired line
+  67:				; Exit:
+  68:				;  c = the remaining half-height of the desired line
+  69:				; @private
+  70:				outline_center_wall_seg	macro	?hh1,?hh2,?hh3
+  71:							ld a,(iy)
+  72:							; We'll hold the remaining half-height in c.
+  73:							ld c,a
+  74:							or a
+  75:							; Check if the half-height is zero.
+  76:							jr nz,?hh1
+  77:							ret
+  78:				?hh1:			dec c
+  79:							jr nz,?hh2
+  80:							ld a,$8c	; r and l mid dots.
+  81:							ld (ix),a
+  82:							ret
+  83:				?hh2:			dec c
+  84:							jr nz,?hh3
+  85:							ld a,$b3	; r and l top and bot dots.
+  86:							ld (ix),a
+  87:							ret
+  88:				?hh3:			nop
+  89:							endm
+  90:				
+  91:				; Draws a segment of the solid wall above and below the center character
+  92:				; position.
+  93:				; Entry:
+  94:				;  ix = addr of the char position above the center.
+  95:				;  iy = addr of the char position below the center.
+  96:				; Exit:
+  97:				;  c = the remaining half-height of the desired line
+  98:				; @private
+  99:				solid_wall_seg		macro	?hh2,?hh3,?hh4
+ 100:							dec c
+ 101:							jr nz,?hh2
+ 102:							ld a,$b0	; r and l bottom dots.
+ 103:							ld (ix),a
+ 104:							ld a,$83	; r and l top dots.
+ 105:							ld (iy),a
+ 106:							ret
+ 107:				?hh2:			dec c
+ 108:							jr nz,?hh3
+ 109:							ld a,$9c	; r and l mid dots, l bottom.
+ 110:							ld (ix),a
+ 111:							ld a,$8d	; r and l mid 2 dots, l top.
+ 112:							ld (iy),a
+ 113:							ret
+ 114:				?hh3:			dec c
+ 115:							jr nz,?hh4
+ 116:							ld a,$97	; r and l top dots, l mid & bot.
+ 117:							ld (ix),a
+ 118:							ld a,$b5	; r and l bottom dots, l mid & top.
+ 119:							ld (iy),a
+ 120:							ret
+ 121:				?hh4:			ld a, $95	; all l dots.
+ 122:							ld (ix),a
+ 123:							ld (iy),a
+ 124:							endm
+ 125:				
+ 126:				; Draws the outline of a black wall above and below the center character
+ 127:				; position, if necessary.
+ 128:				; Entry:
+ 129:				;  ix = addr of the char position above the center.
+ 130:				;  iy = addr of the char position below the center.
+ 131:				; Exit:
+ 132:				;  c = the remaining half-height of the desired line
+ 133:				; @private
+ 134:				outline_wall_seg	macro	?hh2,?hh3,?hh4
+ 135:							dec c
+ 136:							jr nz,?hh2
+ 137:							ld a,$b0	; r and l bottom dots.
+ 138:							ld (ix),a
+ 139:							ld a,$83	; r and l top dots.
+ 140:							ld (iy),a
+ 141:							ret
+ 142:				?hh2:			dec c
+ 143:							jr nz,?hh3
+ 144:							ld a,$8c	; r and l mid dots.
+ 145:							ld (ix),a
+ 146:							ld a,$8c	; r and l mid dots.
+ 147:							ld (iy),a
+ 148:							ret
+ 149:				?hh3:			dec c
+ 150:							jr nz,?hh4
+ 151:							ld a,$83	; r and l top dots.
+ 152:							ld (ix),a
+ 153:							ld a,$b0	; r and l bottom dots.
+ 154:							ld (iy),a
+ 155:							ret
+ 156:				?hh4:			nop
+ 157:							endm
+ 158:				
+ 159:				; Stepping up and down from the address passed the the ray drawing routine
+ 160:				; by a line ('buff_line_width' bytes) this routine updates the memory
+ 161:				; locations:
+ 162:     -	0000  0000    	char_above_addr	defw	0
+ 163:     -	0002  0000    	char_below_addr	defw	0
+ 164:				; Exit:
+ 165:				;  ix = addr of the char position above the center.
+ 166:				;  iy = addr of the char position below the center.
+ 167:				; @private
+ 168:    0+10	0004  110000  	next_char_pos:	ld de,buff_line_width
+U 'buff_line_width' Undeclared
+ 169:   10+16	0007  2A0200  			ld hl,(char_below_addr)
+ 170:   26+11	000A  19      			add hl,de
+ 171:   37+16	000B  220200  			ld (char_below_addr),hl
+ 172:   53+16	000E  2A0000  			ld hl,(char_above_addr)
+ 173:   69+15	0011  ED52    			sbc hl,de
+ 174:   84+16	0013  220000  			ld (char_above_addr),hl
+ 175:  100+20	0016  DD2A0000			ld ix,(char_above_addr)
+ 176:  120+20	001A  FD2A0200			ld iy,(char_below_addr)
+ 177:  140+10	001E  C9      			ret
+ 178:				
+ 179:				; Implementation note: The below four sets of helpers make it possible
+ 180:				; to reduce macro expansion down to once for each of the four public
+ 181:				; calls. This greatly reduces the memory size of this module.
+ 182:				
+ 183:				; Helpers for draw_solid_wall.
+ 184:				; @private
+ 185:  150+17	001F  CD0400  	solid_wall_seg_h:	call next_char_pos
+ 186:  167+4	0022  0D      				dec c
+ 186:  171+7+5	0023  200B    				jr nz,?a0000
+ 186:  178+7	0025  3EB0    				ld a,$b0	; r and l bottom dots.
+ 186:  185+19	0027  DD7700  				ld (ix),a
+ 186:  204+7	002A  3E83    				ld a,$83	; r and l top dots.
+ 186:  211+19	002C  FD7700  				ld (iy),a
+ 186:  230+10	002F  C9      				ret
+ 186:  240+4	0030  0D      	?a0000:			dec c
+ 186:  244+7+5	0031  200B    				jr nz,?b0000
+ 186:  251+7	0033  3E9C    				ld a,$9c	; r and l mid dots, l bottom.
+ 186:  258+19	0035  DD7700  				ld (ix),a
+ 186:  277+7	0038  3E8D    				ld a,$8d	; r and l mid 2 dots, l top.
+ 186:  284+19	003A  FD7700  				ld (iy),a
+ 186:  303+10	003D  C9      				ret
+ 186:  313+4	003E  0D      	?b0000:			dec c
+ 186:  317+7+5	003F  200B    				jr nz,?c0000
+ 186:  324+7	0041  3E97    				ld a,$97	; r and l top dots, l mid & bot.
+ 186:  331+19	0043  DD7700  				ld (ix),a
+ 186:  350+7	0046  3EB5    				ld a,$b5	; r and l bottom dots, l mid & top.
+ 186:  357+19	0048  FD7700  				ld (iy),a
+ 186:  376+10	004B  C9      				ret
+ 186:  386+7	004C  3E95    	?c0000:			ld a, $95	; all l dots.
+ 186:  393+19	004E  DD7700  				ld (ix),a
+ 186:  412+19	0051  FD7700  				ld (iy),a
+ 186:     -	0054          				endm
+ 186:  167+264	0022  0D200B3E				solid_wall_seg
+	              B0DD7700
+	              3E83FD77
+	              00C90D20
+	              0B3E9CDD
+	              77003E8D
+	              FD7700C9
+	              0D200B3E
+	              97DD7700
+	              3EB5FD77
+	              00C93E95
+	              DD7700FD
+	              7700
+ 187:  431+10	0054  C9      				ret
+ 188:				check_done_solid	macro
+ 189:							xor a
+ 190:							or c
+ 191:							jr z,_draw_solid_wall
+ 192:							endm
+ 193:				
+ 194:				; Helpers for draw_outline_wall.
+ 195:				; @private
+ 196:  441+17	0055  CD0400  	outline_wall_seg_h:	call next_char_pos
+ 197:  458+4	0058  0D      				dec c
+ 197:  462+7+5	0059  200B    				jr nz,?a0001
+ 197:  469+7	005B  3EB0    				ld a,$b0	; r and l bottom dots.
+ 197:  476+19	005D  DD7700  				ld (ix),a
+ 197:  495+7	0060  3E83    				ld a,$83	; r and l top dots.
+ 197:  502+19	0062  FD7700  				ld (iy),a
+ 197:  521+10	0065  C9      				ret
+ 197:  531+4	0066  0D      	?a0001:			dec c
+ 197:  535+7+5	0067  200B    				jr nz,?b0001
+ 197:  542+7	0069  3E8C    				ld a,$8c	; r and l mid dots.
+ 197:  549+19	006B  DD7700  				ld (ix),a
+ 197:  568+7	006E  3E8C    				ld a,$8c	; r and l mid dots.
+ 197:  575+19	0070  FD7700  				ld (iy),a
+ 197:  594+10	0073  C9      				ret
+ 197:  604+4	0074  0D      	?b0001:			dec c
+ 197:  608+7+5	0075  200B    				jr nz,?c0001
+ 197:  615+7	0077  3E83    				ld a,$83	; r and l top dots.
+ 197:  622+19	0079  DD7700  				ld (ix),a
+ 197:  641+7	007C  3EB0    				ld a,$b0	; r and l bottom dots.
+ 197:  648+19	007E  FD7700  				ld (iy),a
+ 197:  667+10	0081  C9      				ret
+ 197:  677+4	0082  00      	?c0001:			nop
+ 197:     -	0083          				endm
+ 197:  458+223	0058  0D200B3E				outline_wall_seg
+	              B0DD7700
+	              3E83FD77
+	              00C90D20
+	              0B3E8CDD
+	              77003E8C
+	              FD7700C9
+	              0D200B3E
+	              83DD7700
+	              3EB0FD77
+	              00C900
+ 198:  681+10	0083  C9      				ret
+ 199:				check_done_outline	macro
+ 200:							xor a
+ 201:							or c
+ 202:							jr z,_draw_outline_wall
+ 203:							endm
+ 204:				
+ 205:				; Draw a solid vertical line with the middle postion at (ix).
+ 206:				; (iy) gives the half-height of the line (0,17).
+ 207:				; Enter:
+ 208:				;  ix = addr of the center char position.
+ 209:				;  iy = addr of the half-height of the desired line
+ 210:				; @public
+ 211:  691+19	0084  FD7E00  				ld a,(iy)
+ 211:							; We'll hold the remaining half-height in c.
+ 211:  710+4	0087  4F      				ld c,a
+ 211:  714+4	0088  B7      				or a
+ 211:							; Check if the half-height is zero.
+ 211:  718+7+5	0089  2001    				jr nz,?a0002
+ 211:  725+10	008B  C9      				ret
+ 211:  735+4	008C  0D      	?a0002:			dec c
+ 211:  739+7+5	008D  2006    				jr nz,?b0002
+ 211:  746+7	008F  3E8C    				ld a,$8c	; r and l mid dots.
+ 211:  753+19	0091  DD7700  				ld (ix),a
+ 211:  772+10	0094  C9      				ret
+ 211:  782+4	0095  0D      	?b0002:			dec c
+ 211:  786+7+5	0096  2006    				jr nz,?c0002
+ 211:  793+7	0098  3EBB    				ld a,$bb	; r and l top and bot dots, l mid.
+ 211:  800+19	009A  DD7700  				ld (ix),a
+ 211:  819+10	009D  C9      				ret
+ 211:  829+7	009E  3E95    	?c0002:			ld a, $95	; all l dots.
+ 211:  836+19	00A0  DD7700  				ld (ix),a
+ 211:     -	00A3          				endm
+ 211:  691+164	0084  FD7E004F	draw_solid_wall:	solid_center_wall_seg
+	              B72001C9
+	              0D20063E
+	              8CDD7700
+	              C90D2006
+	              3EBBDD77
+	              00C93E95
+	              DD7700
+ 212:  855+20	00A3  DD220000				ld (char_above_addr),ix
+ 213:  875+20	00A7  DD220200				ld (char_below_addr),ix
+ 214:							; We have five lines above and below the center line.
+ 215:  895+17	00AB  CD1F00  				call solid_wall_seg_h
+ 216:  912+4	00AE  AF      				xor a
+ 216:  916+4	00AF  B1      				or c
+ 216:  920+7+5	00B0  2818    				jr z,_draw_solid_wall
+ 216:     -	00B2          				endm
+ 216:  912+15	00AE  AFB12818				check_done_solid
+ 217:  927+17	00B2  CD1F00  				call solid_wall_seg_h
+ 218:  944+4	00B5  AF      				xor a
+ 218:  948+4	00B6  B1      				or c
+ 218:  952+7+5	00B7  2811    				jr z,_draw_solid_wall
+ 218:     -	00B9          				endm
+ 218:  944+15	00B5  AFB12811				check_done_solid
+ 219:  959+17	00B9  CD1F00  				call solid_wall_seg_h
+ 220:  976+4	00BC  AF      				xor a
+ 220:  980+4	00BD  B1      				or c
+ 220:  984+7+5	00BE  280A    				jr z,_draw_solid_wall
+ 220:     -	00C0          				endm
+ 220:  976+15	00BC  AFB1280A				check_done_solid
+ 221:  991+17	00C0  CD1F00  				call solid_wall_seg_h
+ 222: 1008+4	00C3  AF      				xor a
+ 222: 1012+4	00C4  B1      				or c
+ 222: 1016+7+5	00C5  2803    				jr z,_draw_solid_wall
+ 222:     -	00C7          				endm
+ 222: 1008+15	00C3  AFB12803				check_done_solid
+ 223: 1023+17	00C7  CD1F00  				call solid_wall_seg_h
+ 224: 1040+10	00CA  C9      	_draw_solid_wall:	ret
+ 225:				
+ 226:				; Draw the outline of a vertical line with the middle postion at (ix).
+ 227:				; (iy) gives the half-height of the line (0,17).
+ 228:				; Enter:
+ 229:				;  ix = addr of the center char position.
+ 230:				;  iy = addr of the half-height of the desired line
+ 231:				; @public
+ 232: 1050+19	00CB  FD7E00  				ld a,(iy)
+ 232:							; We'll hold the remaining half-height in c.
+ 232: 1069+4	00CE  4F      				ld c,a
+ 232: 1073+4	00CF  B7      				or a
+ 232:							; Check if the half-height is zero.
+ 232: 1077+7+5	00D0  2001    				jr nz,?a0007
+ 232: 1084+10	00D2  C9      				ret
+ 232: 1094+4	00D3  0D      	?a0007:			dec c
+ 232: 1098+7+5	00D4  2006    				jr nz,?b0007
+ 232: 1105+7	00D6  3E8C    				ld a,$8c	; r and l mid dots.
+ 232: 1112+19	00D8  DD7700  				ld (ix),a
+ 232: 1131+10	00DB  C9      				ret
+ 232: 1141+4	00DC  0D      	?b0007:			dec c
+ 232: 1145+7+5	00DD  2006    				jr nz,?c0007
+ 232: 1152+7	00DF  3EB3    				ld a,$b3	; r and l top and bot dots.
+ 232: 1159+19	00E1  DD7700  				ld (ix),a
+ 232: 1178+10	00E4  C9      				ret
+ 232: 1188+4	00E5  00      	?c0007:			nop
+ 232:     -	00E6          				endm
+ 232: 1050+142	00CB  FD7E004F	draw_outline_wall:	outline_center_wall_seg
+	              B72001C9
+	              0D20063E
+	              8CDD7700
+	              C90D2006
+	              3EB3DD77
+	              00C900
+ 233: 1192+20	00E6  DD220000				ld (char_above_addr),ix
+ 234: 1212+20	00EA  DD220200				ld (char_below_addr),ix
+ 235:							; We have five lines above and below the center line.
+ 236: 1232+17	00EE  CD5500  				call outline_wall_seg_h
+ 237: 1249+4	00F1  AF      				xor a
+ 237: 1253+4	00F2  B1      				or c
+ 237: 1257+7+5	00F3  281C    				jr z,_draw_outline_wall
+ 237:     -	00F5          				endm
+ 237: 1249+15	00F1  AFB1281C				check_done_outline
+ 238: 1264+17	00F5  CD5500  				call outline_wall_seg_h
+ 239: 1281+4	00F8  AF      				xor a
+ 239: 1285+4	00F9  B1      				or c
+ 239: 1289+7+5	00FA  2815    				jr z,_draw_outline_wall
+ 239:     -	00FC          				endm
+ 239: 1281+15	00F8  AFB12815				check_done_outline
+ 240: 1296+17	00FC  CD5500  				call outline_wall_seg_h
+ 241: 1313+4	00FF  AF      				xor a
+ 241: 1317+4	0100  B1      				or c
+ 241: 1321+7+5	0101  280E    				jr z,_draw_outline_wall
+ 241:     -	0103          				endm
+ 241: 1313+15	00FF  AFB1280E				check_done_outline
+ 242: 1328+17	0103  CD5500  				call outline_wall_seg_h
+ 243: 1345+4	0106  AF      				xor a
+ 243: 1349+4	0107  B1      				or c
+ 243: 1353+7+5	0108  2807    				jr z,_draw_outline_wall
+ 243:     -	010A          				endm
+ 243: 1345+15	0106  AFB12807				check_done_outline
+ 244: 1360+17	010A  CD5500  				call outline_wall_seg_h
+ 245: 1377+4	010D  AF      				xor a
+ 245: 1381+4	010E  B1      				or c
+ 245: 1385+7+5	010F  2800    				jr z,_draw_outline_wall
+ 245:     -	0111          				endm
+ 245: 1377+15	010D  AFB12800				check_done_outline
+ 246: 1392+10	0111  C9      	_draw_outline_wall:	ret
+ 247:				
+
+
+
+Error + Warning report:
+
+     1 errors
+     0 warnings
+     1 U -- Undeclared error
+
+     4	passes
+     0	jr promotions
+    21	symbols
+   274	bytes
+
+    13	macro calls
+  1637	macro bytes
+    48	invented symbols
+
+
+
+Symbol Table:
+
+?a0000          30        48
+?a0001          66        102
+?a0002          8C        140
+?a0007          D3        211
+?b0000          3E        62
+?b0001          74        116
+?b0002          95        149
+?b0007          DC        220
+?c0000          4C        76
+?c0001          82        130
+?c0002          9E        158
+?c0007          E5        229
+_draw_outline_wall  111      273
+_draw_solid_wall CA        202
+char_above_addr 00        0
+char_below_addr 02        2
+draw_outline_wall CB        203
+draw_solid_wall 84        132
+next_char_pos   04        4
+outline_wall_seg_h 55        85
+solid_wall_seg_h 1F        31

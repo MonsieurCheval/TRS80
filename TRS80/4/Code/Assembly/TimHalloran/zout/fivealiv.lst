@@ -1,0 +1,39 @@
+   1:				; fivealiv.asm
+   2:				;   Adds a few numbers (no screen output)
+   3:				;
+   4:				; zmac fivealiv.asm
+   5:				; trs80gp -b main zout/fivealiv.bds
+   6:     -	5200          	  org $5200
+   7:				
+   8:     -	5200  02      	num	defb	2
+   9:				
+  10:     -	5201          	main:
+  11:    0+10	5201  21003C  	  LD   HL,3C00h   ; screen position
+  12:   10+10	5204  110E52  	  LD   DE,MSG
+  13:   20+7	5207  1A      	  LD   A,(DE)
+  14:   27+4	5208  B7      	  OR   A          ; zero = end of string
+  15:   31+7	5209  77      	  LD   (HL),A
+  16:   38+6	520A  23      	  INC  HL
+  17:   44+6	520B  13      	  INC  DE
+  18:   50+12	520C  18F3    	  JR   main
+  19:				
+**** fivealiv.asm ****
+  20:     -	520E  48454C4C	MSG:    DB 'HELLO',0
+	              4F00
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+     3	symbols
+    20	bytes
+
+
+
+Symbol Table:
+
+MSG             520E      21006
+main            5201      20993
+num             5200      20992
