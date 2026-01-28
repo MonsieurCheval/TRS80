@@ -1,5 +1,6 @@
 ; FUNCTIONS
 ; Say Hello 50000
+; clear screen
 
 ; VAR
 ; A$ ; Name Input
@@ -17,10 +18,6 @@
 
 1000 GOTO 60000 ; MAIN MENU
 49999 END
-
-
-
-
 
 
 REM ("ASK FOR NAME")

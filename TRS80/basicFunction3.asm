@@ -1,0 +1,26 @@
+working with .dat ? 
+
+10 OPEN "R", 1, "CONTACTS.DAT", 100: REM 100 bytes per record
+20 FIELD 1, 30 AS N$, 20 AS P$, 50 AS A$
+30 REM Write record #5
+40 LSET N$="JOHN DOE"
+50 LSET P$="555-1234"
+60 LSET A$="123 MAIN ST"
+70 PUT 1, 5
+80 REM Read record #5
+90 GET 1, 5
+100 PRINT N$, P$, A$
+110 CLOSE 1
+
+
+
+10 OPEN "O", 1, "CONTACTS.TXT"
+20 PRINT#1, "JOHN DOE"
+30 PRINT#1, "555-1234"
+40 PRINT#1, "123 MAIN ST"
+50 CLOSE 1
+60 REM Read back
+70 OPEN "I", 1, "CONTACTS.TXT"
+80 INPUT#1, N$, P$, A$
+90 PRINT N$, P$, A$
+100 CLOSE 1
